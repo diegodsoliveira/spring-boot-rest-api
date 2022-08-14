@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projeto Spring Boot Rest API</title>
+<link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+	<header>
+		<nav class="navbar bg-light">
+			<div class="container-fluid">
+				<a class="navbar-brand h2" href="#">Projeto Spring Boot REST API</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="">
+		<div class="container">
+			<div class="my-5 d-flex justify-content-center">
+				<form action="listatodos" class="row" method="get" id="formUser">
+					<div class="mb-3 col-auto">
+						<input type="text" class="form-control" id="inputNomeBusca"
+							placeholder="Insira o nome" />
+						<div class="form-text">Deixe em branco para listar todos</div>
+					</div>
+					<div class="col-auto">
+						<a href="#" class="btn btn-secondary" onclick="buscarPorNome()">Buscar</a>
+					</div>
+			</div>
+			<div class="mb-4" style="max-height: 350px; overflow: auto">
+				<table class="table table-striped mb-4 table-hover"
+					id="tableUsuario" style="max-height: 350px">
+					<thead class="bg-primary text-white">
+						<tr>
+							<th scope="col">Id</th>
+							<th scope="col">Nome</th>
+							<th scope="col">Idade</th>
+							<th scope="col">Opções</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+
+
+			<div class="col-auto mb-3">
+				<button type="reset" class="btn btn-primary" data-bs-toggle="modal"
+					data-bs-target="#modalNovoUsuario"
+					onclick="document.getElementById('formUserModal').reset()">Novo</button>
+				<button type="button" class="btn btn-success" onclick="listaTodos()">
+					Listar todos</button>
+			</div>
+			</form>
+		</div>
+	</main>
+
+	<!-- Modal Excluir -->
+	<div class="modal fade" id="modalPopupExcluir" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Excluir</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Tem certeza que deseja excluir? Esta ação não pode ser
+						desfeita.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Fechar</button>
+					<button type="button" class="btn btn-danger"
+						onclick="deleteModalUsuario()">Excluir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal Novo -->
+	<div class="modal fade" id="modalNovoUsuario" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Cadastro de
+						usuário</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<label for="message-text" class="col-form-label">Id</label>
+					<form action="" method="post" id="formUserModal">
+						<div class="mb-3">
+							<input type="text" class="form-control  bg-light"
+								id="inputIdModalUsuario" name="inputIdModalUsuario"
+								readonly="readonly">
+						</div>
+						<div class="mb-3">
+							<label for="message-text" class="col-form-label">Nome</label> <input
+								type="text" class="form-control" id="inputNomeModalUsuario"
+								placeholder="Insira o nome" name="inputNomeModalUsuario"
+								required="required">
+						</div>
+						<div class="mb-3">
+							<label for="message-text" class="col-form-label">Idade</label> <input
+								type="number" class="form-control" id="inputIdadeModalUsuario"
+								placeholder="Insira a idade" name="inputIdadeModalUsuario"
+								required="required">
+						</div>
+					</form>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Fechar</button>
+						<button type="button" class="btn btn-primary"
+							onclick="salvarUsuario()">Salvar usuário</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toast start -->
+	<div class="toast-container bottom-0 end-0 p-3">
+		<div id="toastRetornoServlet" class="toast text-bg-success"
+			role="alert" aria-live="assertive" aria-atomic="true">
+			<div class="toast-body" id="corpoToast">
+				<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="text/javascript"
+		src="bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="jquery/jquery-3.6.0.min.js"></script>
+
+	<script type="text/javascript">
+
+		function mostraToast(msg) {
+			var toastLiveExample = document
+					.getElementById('toastRetornoServlet')
+			var toast = new bootstrap.Toast(toastLiveExample)
+			$("#corpoToast").text(msg);
+
+			toast.show()
+		}
+
+		$(document).ready(function() {
+			listaTodos();
+		});
+
+		window.dadoBotaoClidado = 0;
+
+		function botaoClicado(e) {
+			window.dadoBotaoClidado = e
+		}
+
+		function listaTodos() {
+
+			$
+					.ajax({
+						method : 'get',
+						url : 'listatodos'
+					})
+					.done(
+							function(response, textStatus, xhr) {
+								var lista = response
+
+								$('#tableUsuario > tbody > tr').remove()
+
+								for (var i = 0; i < lista.length; i++) {
+									$('#tableUsuario > tbody')
+											.append(
+													'<tr id="rowRemoveDelete'+lista[i].id+'">><th scope="row">'
+															+ lista[i].id
+															+ '</th> <td>'
+															+ lista[i].nome
+															+ '</td><td>'
+															+ lista[i].idade
+															+ '</td><td><a href="#" data-bs-toggle="modal" data-bs-target="#modalNovoUsuario" onclick="colocarEmEdicao(\''
+															+ lista[i].id
+															+ '\')">Editar</a>'
+															+ '<a href="#" class="text-danger ms-2" id="'
+															+ lista[i].id
+															+ '" data-bs-toggle="modal" onclick="botaoClicado(\''
+															+ lista[i].id
+															+ '\')" data-bs-target="#modalPopupExcluir">Excluir</a></td></tr>')
+
+								}
+							}).fail(function(xhr, status, errorThrown) {
+						alert('Erro ao listar todos: ' + xhr.responseText)
+					})
+		}
+
+		function salvarUsuario() {
+			var id = $("#inputIdModalUsuario").val();
+			var nome = $("#inputNomeModalUsuario").val();
+			var idade = $("#inputIdadeModalUsuario").val();
+
+			if (nome != null && nome != '' && idade != null && idade != '') {
+
+				$.ajax({
+					method : 'post',
+					url : 'salvar',
+					data : JSON.stringify({
+						id : id,
+						nome : nome,
+						idade : idade
+					}),
+					contentType : "application/json; charset=utf-8"
+				}).done(function(response, textStatus, xhr) {
+					limparCampos()
+					listaTodos()
+					$('#modalNovoUsuario').modal('hide');
+					mostraToast("Salvo com sucesso.")
+
+				}).fail(function(xhr, status, errorThrown) {
+					mostraToast('Erro ao gravar no banco: ' + xhr.responseText)
+				})
+
+			} else {
+				alert('Por favor preencha todos os campos!')
+			}
+
+		}
+
+		function deleteModalUsuario() {
+
+			$.ajax({
+				method : 'delete',
+				url : 'delete',
+				data : 'idUser=' + window.dadoBotaoClidado
+			}).done(function(response, textStatus, xhr) {
+				limparCampos()
+				$('#rowRemoveDelete' + window.dadoBotaoClidado).remove();
+				$('#modalPopupExcluir').modal('hide');
+				mostraToast(response)
+
+			}).fail(function(xhr, status, errorThrown) {
+				mostraToast('Erro ao deletar usuário no banco: ' + xhr.responseText)
+			})
+		}
+
+		function colocarEmEdicao(id) {
+			$.ajax({
+				method : 'get',
+				url : 'buscaruserid',
+				data : 'idUser=' + id
+			}).done(function(response, textStatus, xhr) {
+
+				$("#inputIdModalUsuario").val(response.id)
+				$("#inputNomeModalUsuario").val(response.nome)
+				$("#inputIdadeModalUsuario").val(response.idade)
+
+			}).fail(function(xhr, status, errorThrown) {
+				alert('Erro ao buscar usuário por id: ' + xhr.responseText)
+			})
+
+		}
+
+		function buscarPorNome() {
+			var nome = $("#inputNomeBusca").val();
+
+			$
+					.ajax({
+						method : 'get',
+						url : 'buscarpornome',
+						data : 'nome=' + nome.trim()
+					})
+					.done(
+							function(response, textStatus, xhr) {
+								var lista = response
+
+								$('#tableUsuario > tbody > tr').remove()
+
+								for (var i = 0; i < lista.length; i++) {
+									$('#tableUsuario > tbody')
+											.append(
+													'<tr id="rowRemoveDelete'+lista[i].id+'"><th scope="row">'
+															+ lista[i].id
+															+ '</th> <td>'
+															+ lista[i].nome
+															+ '</td><td>'
+															+ lista[i].idade
+															+ '</td><td><a href="#" data-bs-toggle="modal" data-bs-target="#modalNovoUsuario" onclick="colocarEmEdicao(\''
+															+ lista[i].id
+															+ '\')">Editar</a>'
+															+ '<a href="#" class="text-danger ms-2" id="'
+															+ lista[i].id
+															+ '" data-bs-toggle="modal" onclick="botaoClicado(\''
+															+ lista[i].id
+															+ '\')" data-bs-target="#modalPopupExcluir">Excluir</a></td></tr>')
+								}
+
+							}).fail(
+							function(xhr, status, errorThrown) {
+								alert('Erro ao deletar usuário no banco: '
+										+ xhr.responseText)
+							})
+		}
+
+		function limparCampos() {
+			var elementos = document.getElementById('formUserModal').elements /*Retorna os elementos html dentro do form*/
+			for (p = 0; p < elementos.length; p++) {
+				elementos[p].value = ''
+			}
+		}
+	</script>
+</body>
+</html>
