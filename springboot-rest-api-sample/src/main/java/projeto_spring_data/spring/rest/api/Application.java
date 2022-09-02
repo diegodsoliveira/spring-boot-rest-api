@@ -14,20 +14,23 @@ public class Application extends SpringBootServletInitializer {
 
 	/*
 	 * public static void main(String[] args) {
-	 * SpringApplication.run(Application.class, args); }
+	 * SpringApplication.run(Application.class, args);
+	 * }
 	 * 
-	 * @Override protected SpringApplicationBuilder
-	 * configure(SpringApplicationBuilder builder) { return
-	 * builder.sources(Application.class); }
+	 * @Override
+	 * protected SpringApplicationBuilder configure(SpringApplicationBuilder
+	 * builder) {
+	 * return builder.sources(Application.class);
+	 * }
 	 */
+
+	public static void main(String[] args) {
+		configureApplication(new SpringApplicationBuilder()).run(args);
+	}
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
 		return configureApplication(builder);
-	}
-
-	public static void main(String[] args) {
-		configureApplication(new SpringApplicationBuilder()).run(args);
 	}
 
 	private static SpringApplicationBuilder configureApplication(SpringApplicationBuilder builder) {
